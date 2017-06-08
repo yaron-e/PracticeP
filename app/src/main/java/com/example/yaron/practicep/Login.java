@@ -19,6 +19,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -66,20 +78,18 @@ public class Login extends AppCompatActivity {
         if (usernameString.equals("yaron") && passwordString.equals("yaron")) {
             errorMsg.setText("Login successfully!");
 
-            String url = "http://stockchsr.herokuapp.com/loginAjax";
+            String url = "http://192.168.1.11:8080/Stock/WebServer/login";
             try {
-                HashMap<String, String> hm = new HashMap<String, String>();
-                hm.put("email", usernameString);
-                hm.put("password", passwordString);
+
 
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                 StrictMode.setThreadPolicy(policy);
 
-                String response = performPostCall(url, hm);
+                String response = performPostCall(url);
 
                 Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
 
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" + response);
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + response);
 
                 //sendPOST(url, usernameString, passwordString);
             } catch (Exception e) {
@@ -95,7 +105,45 @@ public class Login extends AppCompatActivity {
 
     }
 
-    public String  performPostCall(String requestURL, HashMap<String, String> postDataParams) {
+   /* private String makeHttpRequest(String urlS) throws IOException {
+        final TextView mTextView = (TextView) findViewById(R.id.errorMsg);
+        RequestQueue mRequestQueue;
+
+// Instantiate the cache
+        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
+
+// Set up the network to use HttpURLConnection as the HTTP client.
+        Network network = new BasicNetwork(new HurlStack());
+
+// Instantiate the RequestQueue with the cache and network.
+        mRequestQueue = new RequestQueue(cache, network);
+
+// Start the queue
+        mRequestQueue.start();
+
+        String url ="http://www.example.com";
+
+// Formulate the request and handle the response.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Do something with the response
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                    }
+                });
+
+// Add the request to the RequestQueue.
+        mRequestQueue.add(stringRequest);
+
+    }*/
+
+   public String  performPostCall(String requestURL) {
         URL url;
         String response = "";
         try {
@@ -104,19 +152,15 @@ public class Login extends AppCompatActivity {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
 
-            OutputStream os = conn.getOutputStream();
+            /*OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(os, "UTF-8"));
             writer.write(getPostDataString(postDataParams));
 
             writer.flush();
             writer.close();
-            os.close();
+            os.close();*/
             int responseCode=conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
@@ -155,65 +199,7 @@ public class Login extends AppCompatActivity {
     }
 
 
-   /* private void sendPOST(String url, String username, String password) throws IOException {
-        HttpClient httpclient = HttpClients.createDefault();
-        HttpPost httppost = new HttpPost(url);
 
-        // Request parameters and other properties.
-        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-        params.add(new BasicNameValuePair("param-1", "12345"));
-        params.add(new BasicNameValuePair("param-2", "Hello!"));
-        httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-
-        //Execute and get the response.
-        HttpResponse response = httpclient.execute(httppost);
-        HttpEntity entity = response.getEntity();
-
-        if (entity != null) {
-            InputStream instream = entity.getContent();
-            try {
-                // do something useful
-            } finally {
-                instream.close();
-            }
-        }
-
-
-
-       /* URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("email", username);
-        con.setRequestProperty("password", password);
-
-        // For POST only - START
-        con.setDoOutput(true);
-        OutputStream os = con.getOutputStream();
-        os.write(POST_PARAMS.getBytes());
-        os.flush();
-        os.close();
-        // For POST only - END
-
-        int responseCode = con.getResponseCode();
-        System.out.println("POST Response Code :: " + responseCode);
-
-        if (responseCode == HttpURLConnection.HTTP_OK) { //success
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            // print result
-            System.out.println(response.toString());
-        } else {
-            System.out.println("POST request not worked");
-        }*/
-   /* }*/
 
     @Nullable
     public static String getResponseFromHttpUrl(String urlS) throws IOException{
