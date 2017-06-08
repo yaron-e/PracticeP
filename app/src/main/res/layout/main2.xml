@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.yaron.practicep.MainActivity"
+    android:layout_gravity="center_horizontal|top"
+    android:orientation="vertical"
+    tools:layout_editor_absoluteX="8dp"
+    tools:layout_editor_absoluteY="8dp"
+    >
+-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#e0e0e0">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_centerVertical="false">
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:background="#e0e0e0"
+            android:gravity="center_horizontal"
+            android:text="Register"
+            android:textColor="#0091ea"
+            android:textStyle="bold"
+            style="?android:attr/borderlessButtonStyle"
+            android:onClick="registerButton"/>
+
+        <TextView
+            android:id="@+id/errorMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dp"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text=""
+            android:textColor="#ff0000"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical"
+        android:layout_centerVertical="true"
+        >
+
+
+
+
+
+
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="13"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:inputType="textPersonName"
+            android:hint="Username"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="3dp"
+            />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="13"
+            android:inputType="textPassword"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:hint="Password"
+            android:layout_margin="25dp"/>
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="5dp">
+
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:gravity="center"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:background="#039be5"
+            android:onClick="login"/>
+    </LinearLayout>
+</RelativeLayout>
+
+
+    <!--
+    </LinearLayout>
+    -->
