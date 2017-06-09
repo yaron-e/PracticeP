@@ -30,6 +30,14 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.yaron.practicep.Entities.User;
+import com.example.yaron.practicep.Shared.Ajax;
+import com.example.yaron.practicep.Shared.Shared;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,6 +47,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -74,35 +83,28 @@ public class Login extends AppCompatActivity {
 
         TextView errorMsg = (TextView) findViewById(R.id.errorMsg);
 
+        HashMap<String, String> hm = new HashMap<String, String>();
+        hm.put("email", usernameString);
+        hm.put("password", passwordString);
 
-        if (usernameString.equals("yaron") && passwordString.equals("yaron")) {
-            errorMsg.setText("Login successfully!");
+        String gson = Ajax.doPost(Shared.url, "login", hm);
 
-            String url = "http://192.168.1.11:8080/Stock/WebServer/login";
-            try {
+        if (gson == null) { //if there was an error in the HTTP request
+            Toast.makeText(getApplicationContext(), "Response is null, error in HTTP", Toast.LENGTH_LONG).show();
+        } else if (gson.equals("0")) { //If response is '0' then there is no user with these credentials
+            Toast.makeText(getApplicationContext(), "Invalid username and password, please try again.", Toast.LENGTH_LONG).show();
+        } else if (gson.equals("500")) {
+            Toast.makeText(getApplicationContext(), "Server error: " + gson, Toast.LENGTH_LONG).show();
+        } else {//User was found and returned
+            Gson g = new Gson();
 
-
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-
-                String response = performPostCall(url);
-
-                Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
-
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + response);
-
-                //sendPOST(url, usernameString, passwordString);
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Error in sendPost\n" + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-
+            User u = g.fromJson(gson, User.class);
 
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);
-        } else {
-            errorMsg.setText("Wrong username and password!");
-        }
 
+            Toast.makeText(getApplicationContext(), "Welcome " + u.getName(), Toast.LENGTH_LONG).show();
+        }
     }
 
    /* private String makeHttpRequest(String urlS) throws IOException {
@@ -143,7 +145,11 @@ public class Login extends AppCompatActivity {
 
     }*/
 
-   public String  performPostCall(String requestURL) {
+  /* public String  performGetCall(String requestURL) {
+       HashMap<String, String> postDataParams = new HashMap<String, String>();
+       postDataParams.put("email", "a.gmail.com");
+       postDataParams.put("password", "a");
+
         URL url;
         String response = "";
         try {
@@ -153,14 +159,6 @@ public class Login extends AppCompatActivity {
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
 
-            /*OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
-            writer.write(getPostDataString(postDataParams));
-
-            writer.flush();
-            writer.close();
-            os.close();*/
             int responseCode=conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
@@ -181,22 +179,52 @@ public class Login extends AppCompatActivity {
         return response;
     }
 
-    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException{
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-        for(Map.Entry<String, String> entry : params.entrySet()){
-            if (first)
-                first = false;
-            else
-                result.append("&");
+    public String  performPostCall(String requestURL) {
+        HashMap<String, String> postDataParams = new HashMap<String, String>();
+        postDataParams.put("email", "a.gmail.com");
+        postDataParams.put("password", "a");
 
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        URL url;
+        String response = "";
+        try {
+            url = new URL(requestURL);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("POST");
+
+
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(os, "UTF-8"));
+            writer.write(getPostDataString(postDataParams));
+
+            writer.flush();
+            writer.close();
+            os.close();
+            int responseCode=conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                String line;
+                BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line=br.readLine()) != null) {
+                    response+=line;
+                }
+            }
+            else {
+                response="";
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return result.toString();
-    }
+        return response;
+    }*/
+
+
 
 
 
