@@ -19,6 +19,26 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.yaron.practicep.Entities.User;
+import com.example.yaron.practicep.Shared.Ajax;
+import com.example.yaron.practicep.Shared.Shared;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -27,6 +47,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -62,40 +83,73 @@ public class Login extends AppCompatActivity {
 
         TextView errorMsg = (TextView) findViewById(R.id.errorMsg);
 
+        HashMap<String, String> hm = new HashMap<String, String>();
+        hm.put("email", usernameString);
+        hm.put("password", passwordString);
 
-        if (usernameString.equals("yaron") && passwordString.equals("yaron")) {
-            errorMsg.setText("Login successfully!");
+        String gson = Ajax.doPost(Shared.url, "login", hm);
 
-            String url = "http://stockchsr.herokuapp.com/loginAjax";
-            try {
-                HashMap<String, String> hm = new HashMap<String, String>();
-                hm.put("email", usernameString);
-                hm.put("password", passwordString);
+        if (gson == null) { //if there was an error in the HTTP request
+            Toast.makeText(getApplicationContext(), "Response is null, error in HTTP", Toast.LENGTH_LONG).show();
+        } else if (gson.equals("0")) { //If response is '0' then there is no user with these credentials
+            Toast.makeText(getApplicationContext(), "Invalid username and password, please try again.", Toast.LENGTH_LONG).show();
+        } else if (gson.equals("500")) {
+            Toast.makeText(getApplicationContext(), "Server error: " + gson, Toast.LENGTH_LONG).show();
+        } else {//User was found and returned
+            Gson g = new Gson();
 
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-
-                String response = performPostCall(url, hm);
-
-                Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
-
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" + response);
-
-                //sendPOST(url, usernameString, passwordString);
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Error in sendPost\n" + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-
+            User u = g.fromJson(gson, User.class);
 
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);
-        } else {
-            errorMsg.setText("Wrong username and password!");
-        }
 
+            Toast.makeText(getApplicationContext(), "Welcome " + u.getName(), Toast.LENGTH_LONG).show();
+        }
     }
 
-    public String  performPostCall(String requestURL, HashMap<String, String> postDataParams) {
+   /* private String makeHttpRequest(String urlS) throws IOException {
+        final TextView mTextView = (TextView) findViewById(R.id.errorMsg);
+        RequestQueue mRequestQueue;
+
+// Instantiate the cache
+        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
+
+// Set up the network to use HttpURLConnection as the HTTP client.
+        Network network = new BasicNetwork(new HurlStack());
+
+// Instantiate the RequestQueue with the cache and network.
+        mRequestQueue = new RequestQueue(cache, network);
+
+// Start the queue
+        mRequestQueue.start();
+
+        String url ="http://www.example.com";
+
+// Formulate the request and handle the response.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Do something with the response
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                    }
+                });
+
+// Add the request to the RequestQueue.
+        mRequestQueue.add(stringRequest);
+
+    }*/
+
+  /* public String  performGetCall(String requestURL) {
+       HashMap<String, String> postDataParams = new HashMap<String, String>();
+       postDataParams.put("email", "a.gmail.com");
+       postDataParams.put("password", "a");
+
         URL url;
         String response = "";
         try {
@@ -104,14 +158,47 @@ public class Login extends AppCompatActivity {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
+
+            int responseCode=conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                String line;
+                BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line=br.readLine()) != null) {
+                    response+=line;
+                }
+            }
+            else {
+                response="";
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public String  performPostCall(String requestURL) {
+        HashMap<String, String> postDataParams = new HashMap<String, String>();
+        postDataParams.put("email", "a.gmail.com");
+        postDataParams.put("password", "a");
+
+        URL url;
+        String response = "";
+        try {
+            url = new URL(requestURL);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
             conn.setRequestMethod("POST");
+
+
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
+                new OutputStreamWriter(os, "UTF-8"));
             writer.write(getPostDataString(postDataParams));
 
             writer.flush();
@@ -135,85 +222,12 @@ public class Login extends AppCompatActivity {
         }
 
         return response;
-    }
-
-    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException{
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-        for(Map.Entry<String, String> entry : params.entrySet()){
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-        }
-
-        return result.toString();
-    }
-
-
-   /* private void sendPOST(String url, String username, String password) throws IOException {
-        HttpClient httpclient = HttpClients.createDefault();
-        HttpPost httppost = new HttpPost(url);
-
-        // Request parameters and other properties.
-        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-        params.add(new BasicNameValuePair("param-1", "12345"));
-        params.add(new BasicNameValuePair("param-2", "Hello!"));
-        httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-
-        //Execute and get the response.
-        HttpResponse response = httpclient.execute(httppost);
-        HttpEntity entity = response.getEntity();
-
-        if (entity != null) {
-            InputStream instream = entity.getContent();
-            try {
-                // do something useful
-            } finally {
-                instream.close();
-            }
-        }
+    }*/
 
 
 
-       /* URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("email", username);
-        con.setRequestProperty("password", password);
 
-        // For POST only - START
-        con.setDoOutput(true);
-        OutputStream os = con.getOutputStream();
-        os.write(POST_PARAMS.getBytes());
-        os.flush();
-        os.close();
-        // For POST only - END
 
-        int responseCode = con.getResponseCode();
-        System.out.println("POST Response Code :: " + responseCode);
-
-        if (responseCode == HttpURLConnection.HTTP_OK) { //success
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            // print result
-            System.out.println(response.toString());
-        } else {
-            System.out.println("POST request not worked");
-        }*/
-   /* }*/
 
     @Nullable
     public static String getResponseFromHttpUrl(String urlS) throws IOException{
