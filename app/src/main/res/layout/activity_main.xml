@@ -2,35 +2,49 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#eceff1">
 
-    <LinearLayout
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp"
+        android:background="#9e9e9e"
+        android:layout_marginBottom="16dp"
+        >
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="Symbol"
+            android:textSize="24sp"
+            />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Price"
+            android:textSize="24sp"
+            />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/button"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingLeft="15dp">
+        android:layout_height="wrap_content"
+        android:text="Button"
+        android:onClick="submitOrder"/>
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="QUANTITY"
-            android:layout_margin="8dp"/>
+    <TableLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/quantity_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:text="0"
-            android:layout_margin="8dp"/>
 
-        <Button
-            android:id="@+id/submitOrderButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="order"
-            android:layout_margin="8dp"
-            android:onClick="submitOrder"/>
-    </LinearLayout>
+    </TableLayout>
 </LinearLayout>

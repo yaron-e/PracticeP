@@ -10,8 +10,8 @@ package com.example.yaron.practicep;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -19,44 +19,21 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.yaron.practicep.Entities.Stock;
 import com.example.yaron.practicep.Entities.User;
 import com.example.yaron.practicep.Shared.Ajax;
+import com.example.yaron.practicep.Shared.JsonParser;
 import com.example.yaron.practicep.Shared.Shared;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Scanner;
-
-import javax.net.ssl.HttpsURLConnection;
-
 
 /**
  * This app displays an order form to order coffee.
@@ -100,10 +77,26 @@ public class Login extends AppCompatActivity {
 
             User u = g.fromJson(gson, User.class);
 
-            Intent i = new Intent(this, MainActivity.class);
-            startActivity(i);
+            //Toast.makeText(getApplicationContext(), "Welcome " + u.getName(), Toast.LENGTH_LONG).show();
 
-            Toast.makeText(getApplicationContext(), "Welcome " + u.getName(), Toast.LENGTH_LONG).show();
+
+            //Save the user into the database
+            UserService us = new UserService(this);
+            int userID = us.save(u);
+
+            //Query the Server for all of this users stock.
+            hm.clear();
+            hm.put("userID", "" + userID);
+            gson = Ajax.doGet(Shared.url, "getUserStock", hm);
+
+            Toast.makeText(getApplicationContext(), "Welcome " + gson, Toast.LENGTH_LONG).show();
+            //Start new activity
+            //Intent i = new Intent(this, MainActivity.class);
+            //startActivity(i);
+
+            List<Stock> stock = JsonParser.convertStringToListStock(gson);
+
+
         }
     }
 

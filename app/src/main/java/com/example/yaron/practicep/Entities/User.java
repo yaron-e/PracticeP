@@ -2,7 +2,9 @@ package com.example.yaron.practicep.Entities;
 
 import com.google.gson.Gson;
 
-
+/**
+ * Custom user object class designed for handling all user related data
+ */
 public class User {
 
 	private Integer userID;

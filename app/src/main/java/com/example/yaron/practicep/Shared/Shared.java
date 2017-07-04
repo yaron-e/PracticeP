@@ -6,7 +6,7 @@ package com.example.yaron.practicep.Shared;
 
 public class Shared {
 
-    public static final String url = "http://192.168.1.11:8080/Stock/WebServer/";
+    public static final String url = "http://192.168.1.4:8080/Stock/WebServer/";
 
 
 }
